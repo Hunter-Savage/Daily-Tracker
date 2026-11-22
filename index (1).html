@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0F14">
+<title>Daily Progress Tracker</title>
+<style>
+:root{color-scheme:dark;--bg:#0B0F14;--accent:#3DF2E0;--panel:#121c23;--muted:#8ba4ab;--border:#25383d;--text:#e8fbf8;--check:#39FF79;--miss:#FF375F}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:950px;margin:auto;padding:30px 18px 70px}header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}h1{font-size:clamp(26px,5vw,36px);letter-spacing:-1px;line-height:1.1;margin:0 0 8px}h2{font-size:18px;margin:0}.sub,.muted{color:var(--muted)}.sub{margin:0}.cyan{color:var(--accent)}
+button,input{font:inherit}button{cursor:pointer;border:1px solid var(--border);background:#192b30;color:var(--text);border-radius:10px;padding:10px 13px}button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}button:hover{border-color:var(--accent)}button.primary{background:var(--accent);color:var(--bg);font-weight:800;border-color:var(--accent)}button:disabled{opacity:.4;cursor:not-allowed}input{width:82px;background:#0a151a;color:var(--text);border:1px solid #34464a;border-radius:8px;padding:8px 9px}input[type=date]{width:auto;max-width:100%;color-scheme:dark}input[type=number]{appearance:textfield}input::-webkit-inner-spin-button{-webkit-appearance:none}
+.topbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:23px 0}.topbar button{padding:8px 12px}.datebox{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.today-label{font-size:12px;text-transform:uppercase;letter-spacing:1.8px;color:var(--accent);font-weight:700;margin-bottom:8px}
+.overview{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 22px}.stat{border:1px solid var(--border);background:var(--panel);padding:19px;border-radius:15px}.stat strong{display:block;font-size:30px;color:var(--accent);line-height:1.3}.stat span{color:var(--muted);font-size:13px}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.card{background:var(--panel);border:1px solid var(--border);padding:20px;border-radius:16px}.card h2{font-size:18px}.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.unit{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:3px 9px;white-space:nowrap}.amount{margin:16px 0 8px;display:flex;align-items:baseline;gap:8px}.amount strong{font-size:38px;line-height:1.2;color:var(--accent)}.amount span{color:var(--muted)}.track{height:9px;background:#263b3f;border-radius:99px;overflow:hidden}.fill{width:0;height:100%;background:var(--accent);border-radius:99px;transition:width .15s}.goal-line{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0 15px;color:var(--muted);font-size:13px}.buttons{display:flex;flex-wrap:wrap;gap:7px}.buttons button{flex:1;min-width:55px;padding:9px 7px}.buttons .primary{flex:1.5}.adjust{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}.adjust label{display:flex;align-items:center;gap:7px}.adjust input{width:82px}.history{margin-top:26px;border:1px solid var(--border);background:var(--panel);border-radius:16px;padding:18px;overflow:auto}.history-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}.history-head select{background:#0a151a;border:1px solid var(--border);color:var(--text);padding:8px;border-radius:8px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:560px;text-align:left;font-size:13px}th,td{padding:11px 9px;border-bottom:1px solid var(--border)}th{color:var(--muted);font-weight:600}td:first-child{white-space:nowrap}.success{color:var(--accent);font-weight:700}.history-check{color:var(--check);font-size:17px;font-weight:900;margin-left:6px;vertical-align:baseline}.history-miss{color:var(--miss);font-size:17px;font-weight:900;margin-left:6px;vertical-align:baseline}.history-complete{white-space:nowrap}.empty{color:var(--muted)}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.foot{margin-top:13px;font-size:12px;color:var(--muted)}#fileImport{display:none}@media(max-width:650px){.cards{grid-template-columns:1fr}.card{padding:18px}.overview{gap:10px}.stat{padding:14px}.stat strong{font-size:24px}main{padding-top:24px}} 
+.cloudbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 3px;padding:11px 13px;background:var(--panel);border:1px solid var(--border);border-radius:12px}.cloudbar .cloudstate{font-size:13px;color:var(--muted);flex:1;min-width:150px}.cloudbar .cloudstate.ok{color:var(--check)}.cloudbar .cloudstate.warn{color:#fbc976}.cloudbar button{padding:7px 12px}.cloudbar .name{font-size:12px;color:var(--muted)}body.cloud-loading #cards button,body.cloud-loading #cards input,body.cloud-loading #reset,body.cloud-loading #import{pointer-events:none;opacity:.55}
+</style>
+</head>
+<body><main>
+<header><div><div class="today-label">Personal performance dashboard</div><h1>Daily <span class="cyan">Progress</span></h1><p class="sub">Build consistency. Track each day. Review your history.</p></div><div class="datebox"><button id="prev" aria-label="Previous day">←</button><input id="date" type="date" aria-label="Selected date"><button id="next" aria-label="Next day">→</button><button id="today">Today</button></div></header>
+<div class="cloudbar" role="group" aria-label="Cloud sync"><span id="cloudState" class="cloudstate" role="status">Checking cloud connection…</span><span id="cloudName" class="name"></span><button id="signIn" class="primary" type="button">Sign in with Google</button><button id="signOut" type="button" hidden>Sign out</button></div>
+ <div class="topbar"><span id="dayLabel" class="muted"></span></div>
+<div class="overview"><div class="stat"><strong id="completed">0 / 6</strong><span>Daily goals reached</span></div><div class="stat"><strong id="overall">0%</strong><span>Average goal completion (capped at 100%)</span></div></div>
+<section id="cards" class="cards" aria-label="Daily trackers"></section>
+<section class="history"><div class="history-head"><h2>Recent history</h2><select id="historyDays" aria-label="History period"><option value="7">Last 7 days</option><option value="14">Last 14 days</option><option value="30" selected>Last 30 days</option></select></div><div class="tablewrap"><table><thead><tr><th>Date</th><th>Push-ups</th><th>Pull-ups</th><th>Squats</th><th>Running</th><th>Savings</th><th>Personal development</th><th>Goals</th></tr></thead><tbody id="history"></tbody></table></div></section>
+<div class="tools"><button id="export">Export backup (.json)</button><button id="import">Import backup</button><input id="fileImport" type="file" accept="application/json,.json"><button id="reset">Reset selected day</button></div>
+<p class="foot">Entries save locally immediately. When signed in, they also synchronize to Firebase. Check the cloud status before switching devices; offline changes will sync when back online. You can export or import a JSON backup at any time. Savings amounts are a log only: no funds are transferred.</p>
+</main>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut as firebaseSignOut } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDocs, getDoc, setDoc, onSnapshot, waitForPendingWrites } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+
+(()=>{'use strict';
+const KEY='void-cyan-daily-tracker-v1';
+const firebaseConfig={
+  apiKey:'AIzaSyAtDTfpxnByifjtZ14A2DQ8oF1rHQie2Tc',
+  authDomain:'hunter-daily-tracker.firebaseapp.com',
+  projectId:'hunter-daily-tracker',
+  storageBucket:'hunter-daily-tracker.firebasestorage.app',
+  messagingSenderId:'81046953594',
+  appId:'1:81046953594:web:93f5d0b3c6c11b7388e5c3'
+};
+let auth, db, user=null, cloudReady=false, unsubscribeDays=null, unsubscribeGoals=null, writing=0;
+let initialization=0;
+const setCloud=(label,tone='')=>{const el=$('cloudState');el.textContent=label;el.className='cloudstate '+tone;};
+const dayPath=(date)=>doc(db,'users',user.uid,'days',date);
+const goalsPath=()=>doc(db,'users',user.uid,'settings','goals');
+function recordDay(date){const row={};for(const spec of items)row[spec.id]=value(date,spec.id);return row;}
+function queued(promise){writing++;setCloud('Saving to cloud…','warn');Promise.resolve(promise).then(()=>{
+  writing--;if(!writing&&user&&cloudReady)setCloud(navigator.onLine?'Cloud synced ✓':'Saved offline — waiting for connection',navigator.onLine?'ok':'warn');
+}).catch(err=>{writing--;console.error('Cloud save failed',err);setCloud('Sync problem: '+(err.code||err.message),'warn');});}
+function cloudSaveDay(date){if(user&&cloudReady)queued(setDoc(dayPath(date),recordDay(date)));}
+function cloudSaveGoals(){if(user&&cloudReady)queued(setDoc(goalsPath(),{...data.goals}));}
+function localPersist(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){setCloud('Local storage unavailable — check browser settings','warn');return false}}
+async function loadCloud(activeUser,epoch){
+  document.body.classList.add('cloud-loading');setCloud('Loading your cloud records…');
+  const datesRef=collection(db,'users',activeUser.uid,'days');
+  const settingsRef=doc(db,'users',activeUser.uid,'settings','goals');
+  try{
+    const [daysSnap,settingsSnap]=await Promise.all([getDocs(datesRef),getDoc(settingsRef)]);
+    if(epoch!==initialization||user?.uid!==activeUser.uid)return;
+    const cloudDays={};daysSnap.forEach(s=>{if(/^\d{4}-\d{2}-\d{2}$/.test(s.id))cloudDays[s.id]=s.data()});
+    const hadCloudDays=daysSnap.size>0;
+    const localDays={...data.days};
+    const localGoals={...data.goals};
+    // Cloud is authoritative for matching dates; distinct pre-existing local dates are imported once.
+    const missingLocal=Object.keys(localDays).filter(d=>!(d in cloudDays)&&/^\d{4}-\d{2}-\d{2}$/.test(d));
+    data.days={...localDays,...cloudDays};
+    data.goals=settingsSnap.exists()?settingsSnap.data():localGoals;
+    localPersist();render();
+    cloudReady=true;
+    const uploads=missingLocal.map(date=>setDoc(doc(db,'users',activeUser.uid,'days',date),recordDay(date)));
+    if(!settingsSnap.exists())uploads.push(setDoc(settingsRef,{...localGoals}));
+    if(uploads.length){setCloud(hadCloudDays?'Merging unsynced local entries…':'Uploading existing local entries…','warn');await Promise.all(uploads);}
+    if(epoch!==initialization||user?.uid!==activeUser.uid)return;
+    // Remote updates arrive on both the phone and desktop without refreshing.
+    unsubscribeDays=onSnapshot(datesRef,{includeMetadataChanges:true},snap=>{
+      if(epoch!==initialization)return;
+      snap.docChanges().forEach(change=>{
+        const date=change.doc.id;
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
+        if(change.type==='removed')delete data.days[date];
+        else data.days[date]=change.doc.data();
+      });
+      localPersist();render();
+      if(!writing)setCloud(snap.metadata.fromCache?'Offline — changes queued locally':'Cloud synced ✓',snap.metadata.fromCache?'warn':'ok');
+    },err=>setCloud('Cloud read error: '+err.message,'warn'));
+    unsubscribeGoals=onSnapshot(settingsRef,snap=>{
+      if(epoch!==initialization)return;
+      if(snap.exists())data.goals=snap.data();
+      localPersist();render();
+    },err=>setCloud('Goals sync error: '+err.message,'warn'));
+    setCloud(navigator.onLine?'Cloud synced ✓':'Offline — changes will sync later',navigator.onLine?'ok':'warn');
+  }catch(err){console.error(err);setCloud('Unable to connect: '+(err.code||err.message)+'. Local saving still works.','warn');}
+  finally{if(epoch===initialization)document.body.classList.remove('cloud-loading')}
+}
+function teardown(){if(unsubscribeDays)unsubscribeDays();if(unsubscribeGoals)unsubscribeGoals();unsubscribeDays=unsubscribeGoals=null;cloudReady=false;initialization++;document.body.classList.remove('cloud-loading')}
+function setupFirebase(){
+ try{
+  const app=initializeApp(firebaseConfig);auth=getAuth(app);
+  db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+  const provider=new GoogleAuthProvider();
+  $('signIn').onclick=async()=>{try{await signInWithPopup(auth,provider)}catch(err){
+    if(err.code==='auth/popup-blocked'||err.code==='auth/operation-not-supported-in-this-environment'){
+      try{await signInWithRedirect(auth,provider)}catch(e){setCloud('Sign-in error: '+e.message,'warn')}
+    }else if(err.code!=='auth/popup-closed-by-user')setCloud('Sign-in error: '+err.message,'warn');
+  }};
+  $('signOut').onclick=async()=>{try{await firebaseSignOut(auth)}catch(err){setCloud('Sign-out error: '+err.message,'warn')}};
+  getRedirectResult(auth).catch(err=>setCloud('Google sign-in error: '+err.message,'warn'));
+  onAuthStateChanged(auth,activeUser=>{
+    teardown();user=activeUser;const epoch=initialization;
+    $('signIn').hidden=!!user;$('signOut').hidden=!user;
+    $('cloudName').textContent=user?.email||'';
+    if(user)loadCloud(user,epoch);
+    else {setCloud('Local only — sign in for cloud backup','warn');}
+  },err=>setCloud('Authentication error: '+err.message,'warn'));
+ }catch(err){console.error(err);setCloud('Firebase startup failed: '+err.message,'warn');}
+}
+window.addEventListener('online',()=>{if(user&&cloudReady)setCloud('Connection restored — checking synchronization…','warn')});
+window.addEventListener('offline',()=>{if(user)setCloud('Offline — changes will sync when connected','warn')});
+const items=[{id:'pushups',label:'Push-ups',unit:'reps',goal:100,steps:[1,10,25]},{id:'pullups',label:'Pull-ups',unit:'reps',goal:50,steps:[1,5,10]},{id:'squats',label:'Squats',unit:'reps',goal:200,steps:[1,10,25]},{id:'running',label:'Running',unit:'minutes',goal:30,steps:[1,5,10]},{id:'savings',label:'Daily savings',unit:'USD',goal:15,steps:[1,5,15]},{id:'development',label:'Personal development',unit:'minutes',goal:30,steps:[1,5,10]}];
+const $=id=>document.getElementById(id);
+const localDay=(d=new Date())=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+const shift=(date,n)=>{const [y,m,d]=date.split('-').map(Number);const x=new Date(y,m-1,d+n);return localDay(x)};
+const money=n=>'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
+const fmt=(id,n)=>id==='savings'?money(n):Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
+const cleanNum=(v,defaultVal=0)=>{let n=Number(v);return Number.isFinite(n)&&n>=0?Math.round(n*100)/100:defaultVal};
+let data={goals:{},days:{}};
+try{const raw=JSON.parse(localStorage.getItem(KEY));if(raw&&typeof raw==='object'){data.goals=raw.goals&&typeof raw.goals==='object'?raw.goals:{};data.days=raw.days&&typeof raw.days==='object'?raw.days:{}}}catch(e){}
+function persist(){localPersist()}
+function goal(id){const spec=items.find(x=>x.id===id);return cleanNum(data.goals[id],spec.goal)||spec.goal}
+function value(day,id){return cleanNum(data.days[day]?.[id])}
+function update(day,id,delta){const old=value(day,id);if(!data.days[day])data.days[day]={};data.days[day][id]=Math.max(0,Math.round((old+delta)*100)/100);persist();cloudSaveDay(day);render()}
+let selected=localDay();$('date').value=selected;
+$('cards').innerHTML=items.map(x=>`<article class="card" data-id="${x.id}"><div class="card-head"><h2>${x.label}</h2><span class="unit">${x.unit}</span></div><div class="amount"><strong class="val">0</strong><span class="total">/ ${x.goal}</span></div><div class="track"><div class="fill"></div></div><div class="goal-line"><span class="pct">0% complete</span><span class="status">Not started</span></div><div class="buttons"><button class="minus" data-action="minus" title="Subtract one">−1</button>${x.steps.map(s=>`<button class="primary" data-action="add" data-step="${s}">+${x.id==='savings'?'$':''}${s}</button>`).join('')}</div><div class="adjust"><label>Daily goal <input type="number" class="goal" min="0.01" step="any" aria-label="${x.label} goal" value="${x.goal}"></label><label>Set total <input type="number" class="set" min="0" step="any" aria-label="Set ${x.label} total" value="0"></label></div></article>`).join('');
+$('cards').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const card=b.closest('[data-id]');const id=card.dataset.id;if(b.dataset.action==='minus')update(selected,id,-1);if(b.dataset.action==='add')update(selected,id,Number(b.dataset.step))});
+$('cards').addEventListener('change',e=>{const card=e.target.closest('[data-id]');if(!card)return;const id=card.dataset.id;if(e.target.classList.contains('goal')){const n=Number(e.target.value);if(!Number.isFinite(n)||n<=0){alert('Goal must be greater than zero.');render();return}data.goals[id]=Math.round(n*100)/100;persist();cloudSaveGoals();render()}if(e.target.classList.contains('set')){const n=Number(e.target.value);if(!Number.isFinite(n)||n<0){alert('Total cannot be negative.');render();return}if(!data.days[selected])data.days[selected]={};data.days[selected][id]=cleanNum(n);persist();cloudSaveDay(selected);render()}});
+function render(){const pretty=new Date(selected+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});$('date').value=selected;$('dayLabel').textContent=pretty;let done=0,pctTotal=0;items.forEach(x=>{const v=value(selected,x.id),g=goal(x.id),pct=v/g*100;done+=v>=g?1:0;pctTotal+=Math.min(100,pct);const c=document.querySelector(`[data-id="${x.id}"]`);c.querySelector('.val').textContent=fmt(x.id,v);c.querySelector('.total').textContent='/ '+fmt(x.id,g);c.querySelector('.fill').style.width=Math.min(100,pct)+'%';c.querySelector('.pct').textContent=Math.round(pct)+'% complete';c.querySelector('.status').textContent=v>=g?'Goal reached':v===0?'Not started':'In progress';c.querySelector('.status').classList.toggle('success',v>=g);c.querySelector('.goal').value=g;c.querySelector('.set').value=v;c.querySelector('.minus').disabled=v===0});$('completed').textContent=done+' / '+items.length;$('overall').textContent=Math.round(pctTotal/items.length)+'%';renderHistory()}
+function renderHistory(){
+  const n=Number($('historyDays').value),today=localDay();let rows='';
+  const mark=(reached,isPast)=>reached
+    ? '<span class="history-check" role="img" aria-label="Goal reached" title="Goal reached">✓</span>'
+    : isPast ? '<span class="history-miss" role="img" aria-label="Goal missed" title="Goal missed">✕</span>' : '';
+  for(let i=0;i<n;i++){
+    const date=shift(today,-i),isPast=date<today;
+    const values=items.map(x=>value(date,x.id));
+    const completed=items.reduce((n,x,k)=>n+(values[k]>=goal(x.id)?1:0),0);
+    rows+=`<tr><td>${date}${date===today?' (Today)':''}</td>${values.map((v,k)=>`<td class="history-complete">${fmt(items[k].id,v)}${mark(v>=goal(items[k].id),isPast)}</td>`).join('')}<td class="history-complete ${completed===items.length?'success':''}">${completed}/${items.length}${mark(completed===items.length,isPast)}</td></tr>`;
+  }
+  $('history').innerHTML=rows;
+}
+$('date').addEventListener('change',e=>{if(/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)){selected=e.target.value;render()}});$('prev').onclick=()=>{selected=shift(selected,-1);render()};$('next').onclick=()=>{selected=shift(selected,1);render()};$('today').onclick=()=>{selected=localDay();render()};$('historyDays').onchange=renderHistory;
+$('reset').onclick=()=>{if(confirm('Clear all six totals for '+selected+'?')){data.days[selected]={};persist();cloudSaveDay(selected);render()}};
+$('export').onclick=()=>{const payload=JSON.stringify({version:1,exportedAt:new Date().toISOString(),...data},null,2);const blob=new Blob([payload],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='daily-progress-backup-'+localDay()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+$('import').onclick=()=>$('fileImport').click();$('fileImport').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const input=JSON.parse(await f.text());if(!input||typeof input!=='object'||!input.days||typeof input.days!=='object'||!input.goals||typeof input.goals!=='object')throw Error('Invalid backup');if(!confirm('Replace your existing tracker data with this backup?'))return;const next={goals:{},days:{}};for(const x of items){if(input.goals[x.id]!=null&&Number(input.goals[x.id])>0)next.goals[x.id]=cleanNum(input.goals[x.id],x.goal)}for(const [date,day] of Object.entries(input.days)){if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!day||typeof day!=='object')continue;next.days[date]={};for(const x of items)next.days[date][x.id]=cleanNum(day[x.id])}data=next;persist();render();if(user&&cloudReady){for(const day of Object.keys(data.days))cloudSaveDay(day);cloudSaveGoals()}alert(user&&cloudReady?'Backup imported and queued for cloud synchronization. Existing cloud dates not in the backup were retained.':'Backup restored locally. Sign in to upload it.')}catch(err){alert('Could not import file: '+err.message)}finally{e.target.value=''}};
+render();
+setupFirebase();
+})();
+</script></body></html>
